@@ -1,0 +1,86 @@
+{
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "description": "A word cloud visualization depicting Vega research paper abstracts.",
+  "width": 800,
+  "height": 400,
+  "padding": 0,
+
+  "signals": [
+    {
+      "name": "tooltip",
+      "value": {},
+      "on": [
+        {"events": "text:mouseover", "update": "datum"}
+      ]
+    }
+  ],
+
+  "data": [
+    {
+      "name": "table",
+      "values": [
+        {"text": "missing", "count": "100"},
+        {"text": "text", "count": "1"},
+        {"text": "data", "count": "12"},
+        {"text": "error", "count": "20"}
+      ]
+    }
+  ],
+
+  "scales": [
+    {
+      "name": "color",
+      "type": "ordinal",
+      "domain": {"data": "table", "field": "text"},
+      "range": ["#85bda6", "#466362", "#eb5e28", "#628395", "#684a52", "#857885"]
+    }
+  ],
+
+  "marks": [
+    {
+      "type": "text",
+      "from": {"data": "table"},
+      "encode": {
+        "enter": {
+          "text": {"field": "text"},
+          "align": {"value": "center"},
+          "baseline": {"value": "alphabetic"},
+          "fill": {"scale": "color", "field": "text"}
+        },
+        "update": {
+          "fillOpacity": {"value": 1},
+          "tooltip": {"signal": "{'Count': datum.count}"}
+        },
+        "hover": {
+          "fillOpacity": {"value": 0.5}
+        }
+      },
+      "transform": [
+        {
+          "type": "wordcloud",
+          "size": [800, 400],
+          "text": {"field": "text"},
+          "font": "courier",
+          "fontSize": {"field": "datum.count"},
+          "fontSizeRange": [32, 60],
+          "padding": 2
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "encode": {
+        "enter": {
+          "align": {"value": "left"},
+          "fill": {"value": "black"},
+          "fillOpacity": {"value": 1}
+        },
+        "update": {
+          "text": {"signal": "tooltip.Count"},
+          "x": {"signal": "tooltip.x + 10"},
+          "y": {"signal": "tooltip.y + 10"}
+        }
+      }
+    }
+  ]
+}

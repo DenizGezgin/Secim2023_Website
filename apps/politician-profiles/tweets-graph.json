@@ -1,0 +1,43 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": {
+    "values":[]
+  },
+  "config": {
+    "view": {"continuousWidth": 400, "continuousHeight": 300},
+    "axis": {"grid": true}
+  },
+  "params": [{
+    "name": "grid",
+    "select": "interval",
+    "bind": "scales"
+  }],
+  "height": 350,
+  "width": 800,
+  "autosize": {"type": "fit"},
+  
+  "transform": [
+    {"fold": ["retweet_count_log", "favorite_count_log","rtfav_total_count_log"], "as": ["type", "value"]},
+    {"filter": "datum.type != 'favorite_count_log'"},
+    {"calculate": "substring(datum.text, 0, 75) + '...'", "as": "text_short"}
+    ],
+  
+  "layer": [{
+    "mark": {"type": "circle", "filled": true, "size": 15},
+    "encoding": {
+      "x": {"field": "tweet_created_at", "type": "temporal",  "title": "Date", "sort":"ascending"},
+      "y": {"field": "value", "type": "quantitative", "title":"Total engagement"},
+      "color": {
+        "field": "type",
+        "type": "nominal",
+        "title": "",
+        "scale": {
+          "domain": ["retweet_count_log", "rtfav_total_count_log"],
+          "range": ["green", "red"]
+        },
+        "legend": {"labelExpr": "{'retweet_count_log': 'Retweet', 'rtfav_total_count_log': 'Fav+RT'}[datum.label]"}
+      },
+      "tooltip": {"field": "text_short", "type": "nominal"},
+      "href": {"field": "url", "type": "nominal"}
+    }
+  }]}

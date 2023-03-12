@@ -1,0 +1,119 @@
+{
+  "politicanInfo": {
+    "profile_picture": "https://pbs.twimg.com/profile_images/1151410974240444416/yVvaD7hU_400x400.jpg",
+    "name": "Recep Tayyip Erdogan",
+    "bio": "Türkiye Cumhurbaşkanı ve AK Parti Genel Başkanı - President of Türkiye and AK Party Chairman",
+    "handle": "@RTErdogan",
+    "profile_url": "https://twitter.com/RTErdogan",
+    "following": "105",
+    "followers": "19.9M",
+    "party": "AKP",
+    "id": "68034431"
+  },
+  "tweets": [
+    {
+      "screen_name": "kilicdarogluk",
+      "tweet_created_at": "2022-08-02",
+      "id": "4624805986815942657",
+      "retweet_count": "50",
+      "favorite_count": "49",
+      "rtfav_total_count": "99",
+      "text": "Üniversiteleri uzaktan eğitime alma kararının yeniden gözden geçirilmesini bekliyorum. Biz siyasal partiler olarak Türkiye’deki tüm altyapımızı açalım, afetin faturasını gençlerimize ödetmeyelim, onları hayattan koparmayalım.",
+      "url": "https://twitter.com/RTErdogan/status/1633150522575167488"
+    },
+    {
+      "screen_name": "kilicdarogluk",
+      "tweet_created_at": "2022-07-02",
+      "id": "1654805986815942657",
+      "retweet_count": "2",
+      "favorite_count": "50",
+      "rtfav_total_count": "52",
+      "text": "Üniversiteleri uzaktan eğitime alma kararının yeniden gözden geçirilmesini bekliyorum. Biz siyasal partiler olarak Türkiye’deki tüm altyapımızı açalım, afetin faturasını gençlerimize ödetmeyelim, onları hayattan koparmayalım.",
+      "url": "https://twitter.com/darksoulstoilet/status/1619999477669961728"
+    },
+    {
+      "screen_name": "kilicdarogluk",
+      "tweet_created_at": "2022-07-02",
+      "id": "1754805986815942657",
+      "retweet_count": "3",
+      "favorite_count": "53",
+      "rtfav_total_count": "56",
+      "text": "Üniversiteleri uzaktan eğitime alma kararının yeniden gözden geçirilmesini bekliyorum. Biz siyasal partiler olarak Türkiye’deki tüm altyapımızı açalım, afetin faturasını gençlerimize ödetmeyelim, onları hayattan koparmayalım.",
+      "url": "https://twitter.com/darksoulstoilet/status/1632810596058951682"
+    },
+    {
+      "screen_name": "kilicdarogluk",
+      "tweet_created_at": "2022-07-02",
+      "id": "1658805986815942657",
+      "retweet_count": "5",
+      "favorite_count": "51",
+      "rtfav_total_count": "56",
+      "text": "Üniversiteleri uzaktan eğitime alma kararının yeniden gözden geçirilmesini bekliyorum. Biz siyasal partiler olarak Türkiye’deki tüm altyapımızı açalım, afetin faturasını gençlerimize ödetmeyelim, onları hayattan koparmayalım.",
+      "url": "https://twitter.com/mischiefanimals/status/1630240061542342658"
+    },
+    {
+      "screen_name": "kilicdarogluk",
+      "tweet_created_at": "2023-02-02",
+      "id": "2658805986815942657",
+      "retweet_count": "534",
+      "favorite_count": "500",
+      "rtfav_total_count": "1034",
+      "text": "Üniversiteleri uzaktan eğitime alma kararının yeniden gözden geçirilmesini bekliyorum. Biz siyasal partiler olarak Türkiye’deki tüm altyapımızı açalım, afetin faturasını gençlerimize ödetmeyelim, onları hayattan koparmayalım.",
+      "url": "https://twitter.com/ResNeXtGuesser/status/1632954240623845376"
+    }
+  ],
+  "followerChangeChartData": [
+    ["2023-01-04", 19631889],
+    ["2023-01-05", 19637225],
+    ["2023-01-06", 19640045],
+    ["2023-01-07", 19642879],
+    ["2023-01-08", 19645750],
+    ["2023-01-09", 19648707],
+    ["2023-01-10", 19651312],
+    ["2023-01-11", 19653099],
+    ["2023-01-12", 19654400],
+    ["2023-01-13", 19657910],
+    ["2023-01-14", 19670143],
+    ["2023-01-15", 19690955],
+    ["2023-01-16", 19700270],
+    ["2023-01-17", 19718215]
+  ],
+  "monthlyMostUsedWords": {
+    "All": [
+      { "text": "missing", "count": "3" },
+      { "text": "text", "count": "2" },
+      { "text": "data", "count": "842" },
+      { "text": "error", "count": "40" },
+      { "text": "millet", "count": "234" },
+      { "text": "devlet", "count": "33" },
+      { "text": "tost", "count": "33" },
+      { "text": "kelime", "count": "23" },
+      { "text": "2023", "count": "765" },
+      { "text": "secim", "count": "34" },
+      { "text": "bardak", "count": "53" },
+      { "text": "Turkiye", "count": "521" },
+      { "text": "Bakanlik", "count": "332" },
+      { "text": "simit", "count": "12" },
+      { "text": "millet", "count": "234" },
+      { "text": "millet", "count": "234" },
+      { "text": "millet", "count": "234" },
+      { "text": "millet", "count": "234" },
+      { "text": "millet", "count": "234" },
+      { "text": "millet", "count": "234" },
+      { "text": "millet", "count": "234" }
+    ],
+    "2022-07": [
+      { "text": "millet", "count": "234" },
+      { "text": "devlet", "count": "33" },
+      { "text": "tost", "count": "33" },
+      { "text": "kelime", "count": "23" },
+      { "text": "2023", "count": "765" },
+      { "text": "secim", "count": "34" },
+      { "text": "data", "count": "3421" },
+      { "text": "bardak", "count": "53" },
+      { "text": "Turkiye", "count": "34521" },
+      { "text": "Bakanlik", "count": "5332" },
+      { "text": "simit", "count": "12" }
+    ]
+  }
+}

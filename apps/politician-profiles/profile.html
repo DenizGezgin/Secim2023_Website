@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <meta content="#Secim2023 Project" name="VRL Lab @ Sabanci University" />
+    <meta
+      content="disinformation, social bot detection, coordinated activity detection, dezenformasyon, sosyal bot tespiti, koordinasyon tespiti"
+      name="keywords"
+    />
+    <meta
+      content="Copyright (c) 2022 VRL Lab @ Sabanci University"
+      name="Copyright"
+    />
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+    <meta property="og:title" content="#Secim2023 Project @ VRL Lab" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="http://secim2023.biz" />
+    <meta
+      property="og:image"
+      content="http://secim2023.biz/img/secim2023-logo.png"
+    />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="400" />
+    <meta
+      property="og:description"
+      content="Bu platform üzerinden 2023 Cumhurbaşkanlığı Seçimleri için gerçekleştirdiğimiz dezenformasyon ve koordinasyonlu aktivite ile mücadele projesine ait raporlar ve makaleler yayınlıyoruz."
+    />
+    <link
+      id="page_favicon"
+      href="/img/favicon.ico"
+      rel="icon"
+      type="image/x-icon"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@6.6.6/css/flag-icons.min.css"
+    />
+    <script src="/js/popper.min.js"></script>
+    <script src="/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/fa-all.js" data-auto-replace-svg="nest"></script>
+    <script src="/js/multilingual.js"></script>
+    <script src="/js/vrllog.js"></script>
+
+    <link rel="stylesheet" href="/css/bootstrap.min.css" />
+    <link type="text/css" rel="stylesheet" href="/css/hover-min.css" />
+    <link type="text/css" rel="stylesheet" href="/css/academicons.min.css" />
+
+    <style type="text/css">
+      #input2 {
+        display: flex;
+      }
+    </style>
+
+    <title>#Secim2023</title>
+
+    <script type="text/javascript">
+      function drawFollowerChart() {
+        $.getJSON("./follower-change-graph.json", function (def) {
+          var obj = $(".followerchart");
+          var pdata = JSON.parse(JSON.stringify(def));
+          var data = JSON.parse($(obj).attr("data"));
+
+          var newData = [];
+
+          for (let i = 1; i < data.length; i++) {
+            newData.push({
+              date: data[i][0],
+              follower_count: data[i][1],
+              follower_change: data[i][1] - data[i - 1][1],
+            });
+          }
+
+          pdata["datasets"]["data-stem"] = newData;
+          vegaEmbed("#livechart-follower", pdata)
+            .then(function (result) {})
+            .catch(console.error);
+          $("#btn" + $(obj).attr("id")).hide();
+
+          setLang(getCookie("pagelang", "tr"));
+        }).done(function () {
+          $("#wait-message").hide();
+          setLang(getCookie("pagelang", "tr"));
+        });
+      }
+
+      function drawDailyTweetsChart() {
+        $.getJSON("./tweets-graph.json", function (def) {
+          var obj = $(".tweetschart");
+          var pdata = JSON.parse(JSON.stringify(def));
+          var data = JSON.parse($(obj).attr("data"));
+
+          pdata["data"]["values"] = data;
+
+          console.log(data);
+          vegaEmbed("#livechart-tweets", pdata)
+            .then(function (result) {})
+            .catch(console.error);
+          $("#btn" + $(obj).attr("id")).hide();
+
+          setLang(getCookie("pagelang", "tr"));
+        }).done(function () {
+          $("#wait-message").hide();
+          setLang(getCookie("pagelang", "tr"));
+        });
+      }
+
+      function drawPartyDonut() {
+        $.getJSON("./friends-party.json", function (def) {
+          var obj = $(".friendsParty");
+          var pdata = JSON.parse(JSON.stringify(def));
+          var data = JSON.parse($(obj).attr("data")).tweets;
+
+          var newData = [];
+
+          pdata["data"][0]["values"] = data;
+
+          vegaEmbed("#livechart-party", pdata)
+            .then(function (result) {})
+            .catch(console.error);
+          $("#btn" + $(obj).attr("id")).hide();
+
+          setLang(getCookie("pagelang", "tr"));
+        }).done(function () {
+          $("#wait-message").hide();
+          setLang(getCookie("pagelang", "tr"));
+        });
+      }
+
+      function drawMonthlyMostUsedWordWordsCloud(dateOut) {
+        $.getJSON("./monthly-most-used-word-word-cloud.json", function (def) {
+          var obj = $(".monthlyWordCloud");
+          var pdata = JSON.parse(JSON.stringify(def));
+          var data = JSON.parse($(obj).attr("data"));
+          console.log(dateOut);
+
+          pdata["data"][0]["values"] = data[dateOut];
+          vegaEmbed("#livechart-monthlyWordCloud", pdata)
+            .then(function (result) {})
+            .catch(console.error);
+          $("#btn" + $(obj).attr("id")).hide();
+
+          setLang(getCookie("pagelang", "tr"));
+        }).done(function () {
+          $("#wait-message").hide();
+          setLang(getCookie("pagelang", "tr"));
+        });
+      }
+
+      $(document).ready(function () {
+        setLang(getCookie("pagelang", "tr"));
+        $("#wait-message").hide();
+        $('[data-toggle="tooltip"]').tooltip();
+        $("#header-container").load("/components/header.html", function () {
+          setLang(getCookie("pagelang", "tr"));
+        });
+        $("#footer-container").load("/components/footer.html", function () {
+          setLang(getCookie("pagelang", "tr"));
+        });
+        $("#btnDrawAll")
+          .button()
+          .click(function () {
+            $("#wait-message").show();
+            vrllogger.event("event", {
+              code: "CHART_DRAW",
+              lang: getCookie("pagelang", "tr"),
+              uid: getCookie("uid"),
+              data: { id: "*" },
+            });
+            drawCharts();
+            setLang(getCookie("pagelang", "tr"));
+          });
+        vrllogger.event("log", {
+          code: "PAGE_INIT",
+          lang: getCookie("pagelang", "tr"),
+          uid: getCookie("uid"),
+        });
+      });
+      $(window).on("load", function () {
+        setLang(getCookie("pagelang", "tr"));
+        drawFollowerChart();
+        drawDailyTweetsChart();
+        //drawPartyDonut();
+        drawMonthlyMostUsedWordWordsCloud("All");
+      });
+    </script>
+
+    <!-- Import Vega & Vega-Lite (does not have to be from CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+    <!-- Import vega-embed -->
+    <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+
+    <script src="/js/vue.global.min.js"></script>
+
+    <script type="module">
+      const { createApp, ref, computed } = Vue;
+      createApp({
+        data() {
+          return {
+            politicanInfo: {},
+            followerChangeChartData: {},
+            followerChangeChartInfo: {},
+            tweets: {},
+            monthlyMostUsedWordsCloudData: {},
+            friendsPartyData: {},
+            selectedMetric: "All",
+            selectedMetricTr: "Hepsi",
+            selectedDate: "14",
+            dateOutput: "All",
+          };
+        },
+        beforeMount: function () {
+          this.getJson();
+        },
+        watch: {
+          selectedMetric() {
+            // Reload the Twitter widgets after the metric is changed
+            this.reloadTwitterWidgets();
+          },
+        },
+        methods: {
+          reloadTwitterWidgets() {
+            if (typeof twttr !== "undefined") {
+              twttr.widgets.load();
+            } else {
+              // If the Twitter widget JavaScript hasn't finished loading yet, wait for it to finish before calling the load() method
+              const twitterWidgetsJs =
+                document.getElementById("twitter-widgets-js");
+              twitterWidgetsJs.addEventListener("load", () => {
+                twttr.widgets.load();
+              });
+            }
+          },
+          openPoliticianProfile() {
+            window.open(this.politicanInfo.profile_url, "_blank");
+          },
+          setSelectedMetric(value) {
+            this.selectedMetric = value;
+          },
+          GetPoliticanNameFromURL: function () {
+            var sPageURL = window.location.search.substring(1);
+            var sURLVariables = sPageURL.split("=");
+            let PolName = sURLVariables[1];
+            return PolName;
+          },
+
+          getJson: function () {
+            let PolName = this.GetPoliticanNameFromURL();
+
+            console.log(PolName);
+            $.getJSON(
+              "./" + PolName + ".json",
+              function (json) {
+                this.politicanInfo = json.politicanInfo;
+                this.followerChangeChartData = json.followerChangeChartData;
+                this.tweets = json.tweets;
+                this.monthlyMostUsedWordsCloudData = json.monthlyMostUsedWords;
+              }.bind(this)
+            );
+            console.log("I am called.");
+            $.getJSON(
+              "./follower-change-graph.json",
+              function (json) {
+                this.followerChangeChartInfo = json;
+              }.bind(this)
+            );
+          },
+        },
+        computed: {
+          formattedDate() {
+            if (this.selectedDate === "14") {
+              this.dateOutput = "All";
+            } else {
+              const year = this.selectedDate < 12 ? 2022 : 2023;
+              const month = (this.selectedDate % 12) + 1;
+              this.dateOutput = `${year}-${month.toString().padStart(2, "0")}`;
+            }
+            drawMonthlyMostUsedWordWordsCloud(this.dateOutput);
+            return this.dateOutput;
+          },
+
+          filteredData() {
+            var temp = this.tweets;
+            console.log(temp);
+            if (this.selectedMetric === "Retweets") {
+              this.selectedMetricTr = "Retweets";
+              temp = temp.sort(
+                (a, b) => parseInt(b.retweet_count) - parseInt(a.retweet_count)
+              );
+            } else if (this.selectedMetric === "Favorites") {
+              this.selectedMetricTr = "Favoriler";
+              temp = temp.sort(
+                (a, b) =>
+                  parseInt(b.favorite_count) - parseInt(a.favorite_count)
+              );
+            } else {
+              this.selectedMetricTr = "Hepsi";
+              temp = temp.sort(
+                (a, b) =>
+                  parseInt(b.rtfav_total_count) - parseInt(a.rtfav_total_count)
+              );
+            }
+            return temp.slice(0, 6);
+          },
+        },
+      }).mount("#app");
+    </script>
+
+    <!-- Google tag (gtag.js) -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-KMQ3V513ZY"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+
+      gtag("config", "G-KMQ3V513ZY");
+    </script>
+  </head>
+
+  <body>
+    <div id="header-container"></div>
+
+    <div class="container">
+      <div class="row my-5 justify-content-center">
+        <div class="col-8">
+          <div id="app">
+            <div class="container py-5 h-100">
+              <div
+                class="row d-flex justify-content-center align-items-center h-100"
+              >
+                <div
+                  class="shadow rounded"
+                  style="margin-bottom: 2em; padding: 1em"
+                >
+                  <div class="card-body p-4">
+                    <div class="d-flex text-black">
+                      <div class="flex-shrink-0">
+                        <img
+                          :src="politicanInfo.profile_picture"
+                          alt="Profile Image"
+                          class="img-fluid"
+                          style="
+                            height: 180px;
+                            width: 180px;
+                            border-radius: 10px;
+                          "
+                        />
+                      </div>
+                      <div class="flex-grow-1 ms-3">
+                        <h5 class="mb-1">{{politicanInfo.name}}</h5>
+                        <p class="mb-2 pb-1" style="color: #2b2a2a">
+                          {{politicanInfo.bio}}
+                        </p>
+                        <div
+                          class="d-flex justify-content-around rounded-3 p-2 mb-2"
+                          style="background-color: #f5f5f5; font-size: 0.9rem"
+                        >
+                          <div>
+                            <p class="small text-muted mb-1">
+                              <span tlang="tr">Takipçi Edilenler</span>
+                              <span tlang="en">Following</span>
+                            </p>
+                            <p class="mb-0">{{politicanInfo.following}}</p>
+                          </div>
+                          <div class="px-3">
+                            <p class="small text-muted mb-1">
+                              <span tlang="tr">Takipçiler</span>
+                              <span tlang="en">Following</span>
+                            </p>
+                            <p class="mb-0">{{politicanInfo.followers}}</p>
+                          </div>
+                          <div class="col-md-4">
+                            <img
+                              v-bind:src="'/img/party-' + politicanInfo.party.toLowerCase().replace('i̇','i') + '-logo.png'"
+                              onError="this.onerror=null;this.src='/img/noimage.png';"
+                              style="height: 50px"
+                              class="float-end"
+                              alt="Party Logo"
+                            />
+                          </div>
+                        </div>
+                        <div class="d-flex pt-1">
+                          <button
+                            type="button"
+                            @click="openPoliticianProfile"
+                            class="btn btn-outline-primary me-1 flex-grow-1"
+                            style="color: #1da1f2"
+                          >
+                            <span tlang="tr">Twitter'a git</span>
+                            <span tlang="en">Go to Twitter</span>
+                          </button>
+                          <button
+                            type="button"
+                            class="btn btn-primary flex-grow-1"
+                          >
+                            <span tlang="tr">Kıyasla</span>
+                            <span tlang="en">Compare with</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12 mb-4">
+                <div class="card h-100">
+                  <div class="card-body">
+                    <h5 class="card-title">
+                      <span tlang="tr">Günlük Tweet Etkileşimi</span>
+                      <span tlang="en">Daily Tweets Engagement</span>
+                    </h5>
+                    <div
+                      class="tweetschart"
+                      id="chart-tweets"
+                      v-bind:data="JSON.stringify(tweets)"
+                    ></div>
+                    <div id="livechart-tweets"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-12 mb-4">
+                <div class="card h-100">
+                  <div class="card-body">
+                    <h5 class="card-title">
+                      <span tlang="en">Daily Follower Changes</span>
+                      <span tlang="tr">Günlük Takipçi Değişimi</span>
+                    </h5>
+                    <div
+                      class="followerchart"
+                      id="chart-follower"
+                      v-bind:data="JSON.stringify(followerChangeChartData)"
+                    ></div>
+                    <div id="livechart-follower"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-12 mb-4">
+                <div class="card h-100">
+                  <div class="card-body">
+                    <h5 class="card-title">
+                      <span tlang="en">Most Used Words</span>
+                      <span tlang="tr">En Sık Kullanılan Kelimeler</span>
+                    </h5>
+                    <div
+                      class="monthlyWordCloud"
+                      id="monthlyWordCloud"
+                      v-bind:data="JSON.stringify(monthlyMostUsedWordsCloudData)"
+                    ></div>
+                    <div id="livechart-monthlyWordCloud"></div>
+                    <label for="dateRange" class="form-label"
+                      ><span tlang="en">Select a date:</span>
+                      <span tlang="tr">Tarih Seçin</span>
+                    </label>
+                    <input
+                      type="range"
+                      class="form-range"
+                      min="0"
+                      max="14"
+                      id="dateRange"
+                      v-model="selectedDate"
+                    />
+                    <div id="dateOutput">{{ formattedDate }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div
+              id="input2"
+              style="
+                display: flex;
+                align-items: center;
+                margin-left: 250px;
+                margin-bottom: 20px;
+              "
+            >
+              <div style="margin-right: 20px">
+                <h2 style="margin-bottom: 0">
+                  <span tlang="en">Top Engageded</span>
+                  <span tlang="tr">En Yüksek Etkileşim</span>
+                </h2>
+              </div>
+              <div class="select-container">
+                <div class="dropdown select-wrapper">
+                  <button
+                    class="btn btn-secondary dropdown-toggle form-select custom-select"
+                    type="button"
+                    id="selectedMetric"
+                    data-bs-toggle="dropdown"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                    v-bind:class="{ 'is-invalid': selectedMetric === '' }"
+                  >
+                    <span tlang="en">{{selectedMetric}}</span>
+                    <span tlang="tr">{{selectedMetricTr}}</span>
+                  </button>
+                  <div class="dropdown-menu" aria-labelledby="selectedMetric">
+                    <a
+                      class="dropdown-item"
+                      href="#"
+                      @click.prevent="setSelectedMetric('Retweets')"
+                    >
+                      <span tlang="en">Retweets</span>
+                      <span tlang="tr">Retweetler</span>
+                    </a>
+                    <a
+                      class="dropdown-item"
+                      href="#"
+                      @click.prevent="setSelectedMetric('Favorites')"
+                    >
+                      <span tlang="en">Favorites</span>
+                      <span tlang="tr">Favoriler</span>
+                    </a>
+                    <a
+                      class="dropdown-item"
+                      href="#"
+                      @click.prevent="setSelectedMetric('All')"
+                    >
+                      <span tlang="en">All</span>
+                      <span tlang="tr">Hepsi</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-group">
+              <div class="row row-cols-1 row-cols-md-2 g-4">
+                <div
+                  v-for="(tweet, index) in filteredData"
+                  :key="tweet.id"
+                  class="col"
+                >
+                  <div class="card h-100 border-0">
+                    <div class="card-body">
+                      <center>
+                        <blockquote class="twitter-tweet">
+                          <p lang="tr" dir="ltr">{{tweet.text}}</p>
+                          &mdash; @{{(tweet.screen_name)}}
+                          <a :href="tweet.url" target="_blank"
+                            >{{ tweet.tweet_created_at }}</a
+                          >
+                        </blockquote>
+                      </center>
+                      <script
+                        async
+                        src="https://platform.twitter.com/widgets.js"
+                        charset="utf-8"
+                        id="twitter-widgets-js"
+                      ></script>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="footer-container"></div>
+  </body>
+</html>
