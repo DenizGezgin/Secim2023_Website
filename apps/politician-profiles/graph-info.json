@@ -1,4 +1,104 @@
 {
+  "gender-plot": {
+      "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+      "config": {
+        "view": { "continuousWidth": 600, "continuousHeight": 300 },
+        "axis": { "grid": false }
+      },
+      "data": {
+        "values": [
+        ]
+      },
+      "mark": {"type": "area", "opacity": 0.8},
+      "width": {"step": 17},
+      "encoding": {
+        "order": {"field": "order"},
+        "y": {
+          "aggregate": "sum",
+          "field": "count",
+          "title": "Takipçi Yüzdesi",
+          "stack": "normalize",
+          "scale": {"domain": [0, 1]}
+        },
+        "x": {"field": "date",
+        "timeUnit": "yearmonthdate",
+        "scale": { "type": "utc" },
+        "axis": { "labelAngle": 15 },
+        "type": "temporal",
+        "title": "Tarih"},
+        "color": {
+          "field": "gender",
+          "scale": {"range": ["#89A8C8ff", "#CCBE48ff"]},
+          "title": "Cinsiyet"
+        }
+    }
+  },
+  "org-plot": {
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "config": {
+      "view": { "continuousWidth": 600, "continuousHeight": 300 },
+      "axis": { "grid": false }
+    },
+    "data": {
+      "values": [
+      ]
+    },
+    "mark": {"type": "area", "opacity": 0.8},
+    "width": {"step": 17},
+    "encoding": {
+      "y": {
+        "aggregate": "sum",
+        "field": "count",
+        "title": "Takipçi Yüzdesi",
+        "stack": "normalize",
+        "scale": {"domain": [0, 1]}
+      },
+      "x": {"field": "date",
+      "timeUnit": "yearmonthdate",
+      "scale": { "type": "utc" },
+      "axis": { "labelAngle": 15 },
+      "type": "temporal",
+      "title": "Tarih"},
+      "color": {
+        "field": "org",
+        "scale": {"range": ["#BF4F51", "#696969"]},
+        "title": "Organizasyon"
+      }
+  }
+},
+  "age-plot": {
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "config": {
+      "view": { "continuousWidth": 600, "continuousHeight": 300 },
+      "axis": { "grid": false }
+    },
+    "data": {
+      "values": [
+      ]
+    },
+    "mark": {"type": "area", "opacity": 0.8},
+    "width": {"step": 17},
+    "encoding": {
+      "y": {
+        "aggregate": "sum",
+        "field": "count",
+        "title": "Takipçi Yüzdesi",
+        "stack": "normalize",
+        "scale": {"domain": [0, 1]}
+      },
+      "x": {"field": "date",
+      "timeUnit": "yearmonthdate",
+      "scale": { "type": "utc" },
+      "axis": { "labelAngle": 15 },
+      "type": "temporal",
+      "title": "Tarih"},
+      "color": {
+        "field": "age",
+        "scale": {"range": ["#cad2c5ff", "#84a98cff", "#52796fff", "#354f52ff"]},
+        "title": "Yaş Dağılımı"
+      }
+  }
+},
   "follower-change-graph": {
     "config": {
       "view": { "continuousWidth": 400, "continuousHeight": 300 },
@@ -532,13 +632,13 @@
             "scale": { "type": "utc" },
             "axis": { "labelAngle": 15 },
             "type": "temporal",
-            "title": "Date",
+            "title": "Tarih",
             "sort": "ascending"
           },
           "y": {
             "field": "value",
             "type": "quantitative",
-            "title": "Total engagement"
+            "title": "Toplam Etkileşim(logaritmik)"
           },
           "color": {
             "field": "type",

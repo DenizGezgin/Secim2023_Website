@@ -317,6 +317,9 @@
             usernet: {},
             hashtagnet: {},
             selectedMetric: "All",
+            genderPlot: {},
+            agePlot: {},
+            orgPlot: {},
             selectedMetricTr: "Hepsi",
             selectedDate: "14",
             dateOutput: "All",
@@ -336,6 +339,9 @@
           this.drawMentionChart();
           this.drawHashtagChart();
           this.drawFollowerChart();
+          this.drawGenderPlot();
+          this.drawAgePlot();
+          this.drawOrgPlot();
         },
         methods: {
           drawFollowerChart() {
@@ -381,6 +387,40 @@
               pdata["data"][0]["values"] = data[dateOut];
             } catch (error) {}
             vegaEmbed("#livechart-monthlyWordCloud", pdata)
+              .then(function (result) {})
+              .catch(console.error);
+          },
+          //New functions
+          drawGenderPlot() {
+            var obj = $(".genderPlot");
+            var pdata = this.info["gender-plot"];
+            try {
+              var data = JSON.parse($(obj).attr("data"));
+              pdata["data"]["values"] = data;
+            } catch (error) {}
+            vegaEmbed("#livechart-genderPlot", pdata)
+              .then(function (result) {})
+              .catch(console.error);
+          },
+          drawAgePlot() {
+            var obj = $(".agePlot");
+            var pdata = this.info["age-plot"];
+            try {
+              var data = JSON.parse($(obj).attr("data"));
+              pdata["data"]["values"] = data;
+            } catch (error) {}
+            vegaEmbed("#livechart-agePlot", pdata)
+              .then(function (result) {})
+              .catch(console.error);
+          },
+          drawOrgPlot() {
+            var obj = $(".orgPlot");
+            var pdata = this.info["org-plot"];
+            try {
+              var data = JSON.parse($(obj).attr("data"));
+              pdata["data"]["values"] = data;
+            } catch (error) {}
+            vegaEmbed("#livechart-orgPlot", pdata)
               .then(function (result) {})
               .catch(console.error);
           },
@@ -466,6 +506,48 @@
                 this.politicanInfo = json["profile-info"];
                 this.usernet = json["networks"]["usernet"];
                 this.hashtagnet = json["networks"]["hashtagnet"];
+
+                //Stacked Chart Parser
+                let stackedData = json["follower-info"]
+                const genderTransformedData = [];
+                const ageTransformedData = [];
+                const orgTransformedData = [];
+                for (const date in stackedData) {
+                if (date >= '2022-01-01') {
+                  const genderData = stackedData[date].gender;
+                  const ageData = stackedData[date].age;
+                  const orgData = stackedData[date].org;
+                  
+                  for (const gender in genderData) {
+                    genderTransformedData.push({
+                      date,
+                      gender: gender === "female" ? "Kadın" : "Erkek",
+                      order: gender === "female" ? 2 : 1,
+                      count: genderData[gender]
+                    });
+                  }
+                  
+                  for (const age in ageData) {
+                    ageTransformedData.push({
+                      date,
+                      age,
+                      count: ageData[age]
+                    });
+                  }
+                  
+                  for (const org in orgData) {
+                    orgTransformedData.push({
+                      date,
+                      org: org === "is-org" ? "Organizasyon" : "Şahsi",
+                      count: orgData[org]
+                    });
+                  }
+                }
+              }
+              this.genderPlot =  genderTransformedData;
+              this.agePlot = ageTransformedData;
+              this.orgPlot = orgTransformedData;
+
 
                 let mention_data = json["tweet-info"]["top-mentions"]
                   .slice(0, 25)
@@ -811,6 +893,123 @@
                 </div>
               </div>
               <!-- End Follower Change Componenet -->
+              <!-- Start Gender Componenet -->
+              <div class="col-md-12 mb-4">
+                <div class="card h-100">
+                  <div class="accordion accordion-flush" id="accordionGender">
+                    <div class="accordion-item">
+                      <button
+                        class="accordion-button collapsed"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#flush-collapseOneGender"
+                        aria-expanded="false"
+                        aria-controls="flush-collapseOneGender"
+                      >
+                        <h5 class="card-title">
+                          <span tlang="en">Follower Gender Distribution</span>
+                          <span tlang="tr">Takipçi Cinsiyet Dağılımları</span>
+                        </h5>
+                      </button>
+
+                      <div
+                        id="flush-collapseOneGender"
+                        class="accordion-collapse collapse"
+                        aria-labelledby="flush-headingOne"
+                        data-bs-parent="#Gender"
+                      >
+                        <div class="accordion-body">
+                          <div
+                            class="genderPlot"
+                            id="chart-gender"
+                            v-bind:data="JSON.stringify(genderPlot)"
+                          ></div>
+                          <div id="livechart-genderPlot"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- End Gender Componenet -->
+              <!-- Start Age Componenet -->
+              <div class="col-md-12 mb-4">
+                <div class="card h-100">
+                  <div class="accordion accordion-flush" id="accordionAge">
+                    <div class="accordion-item">
+                      <button
+                        class="accordion-button collapsed"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#flush-collapseOneAge"
+                        aria-expanded="false"
+                        aria-controls="flush-collapseOneAge"
+                      >
+                        <h5 class="card-title">
+                          <span tlang="en">Follower Age Distribution</span>
+                          <span tlang="tr">Takipçi Yaş Dağılımları</span>
+                        </h5>
+                      </button>
+
+                      <div
+                        id="flush-collapseOneAge"
+                        class="accordion-collapse collapse"
+                        aria-labelledby="flush-headingOne"
+                        data-bs-parent="#Age"
+                      >
+                        <div class="accordion-body">
+                          <div
+                            class="agePlot"
+                            id="chart-age"
+                            v-bind:data="JSON.stringify(agePlot)"
+                          ></div>
+                          <div id="livechart-agePlot"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- End Age Componenet -->
+              <!-- Start Org Componenet -->
+              <div class="col-md-12 mb-4">
+                <div class="card h-100">
+                  <div class="accordion accordion-flush" id="accordionOrg">
+                    <div class="accordion-item">
+                      <button
+                        class="accordion-button collapsed"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#flush-collapseOneOrg"
+                        aria-expanded="false"
+                        aria-controls="flush-collapseOneOrg"
+                      >
+                        <h5 class="card-title">
+                          <span tlang="en">Follower Organizasyon Distribution</span>
+                          <span tlang="tr">Takipçi Organizasyon Dağılımları</span>
+                        </h5>
+                      </button>
+
+                      <div
+                        id="flush-collapseOneOrg"
+                        class="accordion-collapse collapse"
+                        aria-labelledby="flush-headingOne"
+                        data-bs-parent="#Org"
+                      >
+                        <div class="accordion-body">
+                          <div
+                            class="orgPlot"
+                            id="chart-org"
+                            v-bind:data="JSON.stringify(orgPlot)"
+                          ></div>
+                          <div id="livechart-orgPlot"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- End Org Componenet -->
               <!-- Start Usernet Componenet -->
               <div class="col-md-12 mb-4">
                 <div class="card h-100">
