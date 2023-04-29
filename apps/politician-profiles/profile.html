@@ -4,7 +4,6 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-
     <meta content="#Secim2023 Project" name="VRL Lab @ Sabanci University" />
     <meta
       content="disinformation, social bot detection, coordinated activity detection, dezenformasyon, sosyal bot tespiti, koordinasyon tespiti"
@@ -34,121 +33,242 @@
       rel="icon"
       type="image/x-icon"
     />
-
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@6.6.6/css/flag-icons.min.css"
     />
     <script src="/js/popper.min.js"></script>
+    <script
+      async
+      src="https://platform.twitter.com/widgets.js"
+      charset="utf-8"
+      id="twitter-widgets-js"
+    ></script>
     <script src="/js/bootstrap.bundle.min.js"></script>
     <script src="/js/jquery.min.js"></script>
     <script src="/js/fa-all.js" data-auto-replace-svg="nest"></script>
     <script src="/js/multilingual.js"></script>
     <script src="/js/vrllog.js"></script>
-
     <link rel="stylesheet" href="/css/bootstrap.min.css" />
     <link type="text/css" rel="stylesheet" href="/css/hover-min.css" />
     <link type="text/css" rel="stylesheet" href="/css/academicons.min.css" />
 
     <style type="text/css">
+      #webgl {
+        width: 800px; /* Set the width of the box */
+        height: 600px; /* Set the height of the box */
+        background: #fff;
+        justify-content: center; /* Center the content horizontally */
+        align-items: center; /* Center the content vertically */
+      }
+      #morfi {
+        width: 800px; /* Set the width of the box */
+        height: 600px; /* Set the height of the box */
+        background: #fff;
+        justify-content: center; /* Center the content horizontally */
+        align-items: center; /* Center the content vertically */
+      }
       #input2 {
         display: flex;
+      }
+      .accordion-button::before {
+        margin-left: 10px;
+        margin-right: auto;
       }
     </style>
 
     <title>#Secim2023</title>
 
     <script type="text/javascript">
-      function drawFollowerChart() {
-        $.getJSON("./follower-change-graph.json", function (def) {
-          var obj = $(".followerchart");
-          var pdata = JSON.parse(JSON.stringify(def));
+      let isClicked = false;
+      let isClickedHastag = false;
+
+      function drawNetwork() {
+        if (isClicked) {
+          return;
+        }
+        isClicked = true;
+        try {
+          var obj = $(".usernetchart");
           var data = JSON.parse($(obj).attr("data"));
+          data["size"] = {};
+        } catch (error) {
+          drawNetwork();
+        }
+        console.log(data);
+        var sPageURL = window.location.search.substring(1);
+        var sURLVariables = sPageURL.split("=");
+        let PolName = sURLVariables[1].toLowerCase();
+        let parent = PolName.split("-")[0];
 
-          var newData = [];
+        var edgesMap = {};
+        for (var i = 0; i < data.edges.length; i++) {
+          var edge = data.edges[i];
+          var source = edge[0];
+          var target = edge[1];
+          var weight = edge[2].weight;
 
-          for (let i = 1; i < data.length; i++) {
-            newData.push({
-              date: data[i][0],
-              follower_count: data[i][1],
-              follower_change: data[i][1] - data[i - 1][1],
+          if (!edgesMap[source]) {
+            edgesMap[source] = {};
+          }
+          edgesMap[source][target] = weight;
+        }
+
+        // Loop through each node in the array and add a "size" field based on the edge weight
+        for (var i = 0; i < data.nodes.length; i++) {
+          var node = data.nodes[i];
+          var nodeName = node[0];
+          if (
+            nodeName !== parent &&
+            edgesMap[nodeName] &&
+            edgesMap[nodeName][parent]
+          ) {
+            var size = edgesMap[nodeName][parent];
+            if (size) {
+              data["size"][nodeName] = size;
+            }
+          } else if (nodeName !== parent && edgesMap[parent][nodeName]) {
+            var size = edgesMap[parent][nodeName];
+            if (size) {
+              data["size"][nodeName] = size;
+            }
+          }
+        }
+
+        var i,
+          s = new sigma(),
+          cam = s.addCamera(),
+          colorsNode = ["#435896ff", "#242540ff", "#81938Dff"],
+          colorsEdge = ["#5A6E86ff"],
+          myNodes = [];
+        // Generate a random graph:
+        for (i = 0; i < data.nodes.length; i++) {
+          let size = data.size[data.nodes[i][0]];
+          if (!size) {
+            myNodes = myNodes.concat(data.nodes[i][0]);
+            s.graph.addNode({
+              id: data.nodes[i][0],
+              label: data.nodes[i][0],
+              x: 0.65,
+              y: 0.25,
+              color: "#CCBE48ff",
+              size: Math.log2(600),
+            });
+          } else {
+            if (size < 1) {
+              continue;
+            }
+            myNodes = myNodes.concat(data.nodes[i][0]);
+            size = Math.log2(size);
+            s.graph.addNode({
+              id: data.nodes[i][0],
+              label: data.nodes[i][0],
+              x: Math.random(),
+              y: Math.random(),
+              color: colorsNode[i % 3],
+              size: size,
             });
           }
-
-          pdata["datasets"]["data-stem"] = newData;
-          vegaEmbed("#livechart-follower", pdata)
-            .then(function (result) {})
-            .catch(console.error);
-          $("#btn" + $(obj).attr("id")).hide();
-
-          setLang(getCookie("pagelang", "tr"));
-        }).done(function () {
-          $("#wait-message").hide();
-          setLang(getCookie("pagelang", "tr"));
+        }
+        for (i = 0; i < data.edges.length; i++) {
+          if (
+            myNodes.includes(data.edges[i][0]) &&
+            myNodes.includes(data.edges[i][1])
+          ) {
+            s.graph.addEdge({
+              id: "e" + i,
+              source: data.edges[i][0],
+              target: data.edges[i][1],
+              size: 1 + data.edges[i][2]["weight"],
+              color: colorsEdge[i % 1],
+            });
+          }
+        }
+        // Initialize two distinct renderers, each with its own settings:
+        s.addRenderer({
+          container: document.getElementById("webgl"),
+          type: "webgl",
+          camera: cam,
+          settings: {
+            defaultNodeColor: "#999",
+            defaultEdgeColor: "#000",
+            edgeColor: "default",
+            labelThreshold: 5,
+          },
         });
+
+        s.refresh();
+
+        // launch force-atlas for 5sec
+        s.startForceAtlas2();
+        window.setTimeout(function () {
+          s.killForceAtlas2();
+        }, 500);
+        window.setTimeout(function () {
+          s.refresh();
+          s.startForceAtlas2();
+          window.setTimeout(function () {
+            s.killForceAtlas2();
+          }, 500);
+        }, 1200);
       }
 
-      function drawDailyTweetsChart() {
-        $.getJSON("./tweets-graph.json", function (def) {
-          var obj = $(".tweetschart");
-          var pdata = JSON.parse(JSON.stringify(def));
+      function drawNetworkHashtag() {
+        if (isClickedHastag) {
+          return;
+        }
+        isClickedHastag = true;
+        try {
+          var obj = $(".hashtagnetchart");
           var data = JSON.parse($(obj).attr("data"));
-
-          pdata["data"]["values"] = data;
-
-          console.log(data);
-          vegaEmbed("#livechart-tweets", pdata)
-            .then(function (result) {})
-            .catch(console.error);
-          $("#btn" + $(obj).attr("id")).hide();
-
-          setLang(getCookie("pagelang", "tr"));
-        }).done(function () {
-          $("#wait-message").hide();
-          setLang(getCookie("pagelang", "tr"));
+        } catch (error) {
+          drawNetworkHashtag();
+        }
+        var i,
+          colorsNode = ["#435896ff", "#242540ff", "#81938Dff"],
+          colorsEdge = ["#5A6E86ff"],
+          s = new sigma(),
+          cam = s.addCamera();
+        // Generate a graph:
+        for (i = 0; i < data.nodes.length; i++)
+          s.graph.addNode({
+            id: data.nodes[i][0],
+            label: data.nodes[i][0],
+            x: Math.random(),
+            y: Math.random(),
+            color: colorsNode[i % 3],
+            size: (4 + 10 * Math.random()) | 1,
+          });
+        for (i = 0; i < data.edges.length; i++)
+          s.graph.addEdge({
+            id: "e" + i,
+            source: data.edges[i][0],
+            target: data.edges[i][1],
+            weight: data.edges[i][2]["weight_plain"],
+            size: data.edges[i][2]["weight_plain"],
+            color: colorsEdge[0],
+          });
+        // Initialize renderers:
+        s.addRenderer({
+          container: document.getElementById("morfi"),
+          type: "webgl",
+          camera: cam,
+          settings: {
+            defaultNodeColor: "#999",
+            defaultEdgeColor: "#000",
+            edgeColor: "default",
+            labelThreshold: 10,
+          },
         });
-      }
 
-      function drawPartyDonut() {
-        $.getJSON("./friends-party.json", function (def) {
-          var obj = $(".friendsParty");
-          var pdata = JSON.parse(JSON.stringify(def));
-          var data = JSON.parse($(obj).attr("data")).tweets;
+        s.refresh();
+        sigma.plugins.dragNodes(s, s.renderers[0]);
 
-          var newData = [];
-
-          pdata["data"][0]["values"] = data;
-
-          vegaEmbed("#livechart-party", pdata)
-            .then(function (result) {})
-            .catch(console.error);
-          $("#btn" + $(obj).attr("id")).hide();
-
-          setLang(getCookie("pagelang", "tr"));
-        }).done(function () {
-          $("#wait-message").hide();
-          setLang(getCookie("pagelang", "tr"));
-        });
-      }
-
-      function drawMonthlyMostUsedWordWordsCloud(dateOut) {
-        $.getJSON("./monthly-most-used-word-word-cloud.json", function (def) {
-          var obj = $(".monthlyWordCloud");
-          var pdata = JSON.parse(JSON.stringify(def));
-          var data = JSON.parse($(obj).attr("data"));
-          console.log(dateOut);
-
-          pdata["data"][0]["values"] = data[dateOut];
-          vegaEmbed("#livechart-monthlyWordCloud", pdata)
-            .then(function (result) {})
-            .catch(console.error);
-          $("#btn" + $(obj).attr("id")).hide();
-
-          setLang(getCookie("pagelang", "tr"));
-        }).done(function () {
-          $("#wait-message").hide();
-          setLang(getCookie("pagelang", "tr"));
-        });
+        // launch force-atlas for 5sec
+        s.startForceAtlas2();
+        window.setTimeout(function () {
+          s.killForceAtlas2();
+        }, 2000);
       }
 
       $(document).ready(function () {
@@ -161,41 +281,29 @@
         $("#footer-container").load("/components/footer.html", function () {
           setLang(getCookie("pagelang", "tr"));
         });
-        $("#btnDrawAll")
-          .button()
-          .click(function () {
-            $("#wait-message").show();
-            vrllogger.event("event", {
-              code: "CHART_DRAW",
-              lang: getCookie("pagelang", "tr"),
-              uid: getCookie("uid"),
-              data: { id: "*" },
-            });
-            drawCharts();
-            setLang(getCookie("pagelang", "tr"));
-          });
         vrllogger.event("log", {
           code: "PAGE_INIT",
           lang: getCookie("pagelang", "tr"),
           uid: getCookie("uid"),
         });
       });
+
       $(window).on("load", function () {
         setLang(getCookie("pagelang", "tr"));
-        drawFollowerChart();
-        drawDailyTweetsChart();
-        //drawPartyDonut();
-        drawMonthlyMostUsedWordWordsCloud("All");
+        //drawNetwork();
       });
     </script>
 
-    <!-- Import Vega & Vega-Lite (does not have to be from CDN) -->
+    <!-- Import Statements -->
     <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
     <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
-    <!-- Import vega-embed -->
     <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sigma.js/2.0.0/sigma.min.js"></script>
     <script src="/js/vue.global.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sigma.js/1.2.1/sigma.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sigma.js/1.2.1/plugins/sigma.layout.forceAtlas2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sigma.js/1.2.1/plugins/sigma.plugins.dragNodes.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dagre/0.8.4/dagre.min.js"></script>
 
     <script type="module">
       const { createApp, ref, computed } = Vue;
@@ -203,15 +311,16 @@
         data() {
           return {
             politicanInfo: {},
-            followerChangeChartData: {},
-            followerChangeChartInfo: {},
+            followerData: {},
             tweets: {},
             monthlyMostUsedWordsCloudData: {},
-            friendsPartyData: {},
+            usernet: {},
+            hashtagnet: {},
             selectedMetric: "All",
             selectedMetricTr: "Hepsi",
             selectedDate: "14",
             dateOutput: "All",
+            info: {},
           };
         },
         beforeMount: function () {
@@ -219,16 +328,103 @@
         },
         watch: {
           selectedMetric() {
-            // Reload the Twitter widgets after the metric is changed
             this.reloadTwitterWidgets();
           },
         },
+        mounted() {
+          this.drawDailyTweetsChart();
+          this.drawMentionChart();
+          this.drawHashtagChart();
+          this.drawFollowerChart();
+        },
         methods: {
+          drawFollowerChart() {
+            var pdata = this.info["follower-change-graph"];
+            $.getJSON("./user_followers.json", function (json) {
+              setLang(getCookie("pagelang", "tr"));
+              var sPageURL = window.location.search.substring(1);
+              var sURLVariables = sPageURL.split("=");
+              let PolName = sURLVariables[1].toLowerCase();
+              const parts = PolName.split("-");
+              const short_id = parts[1];
+              for (let pol in json) {
+                if (json[pol]["id"] === short_id) {
+                  this.followerData = json[pol]["followers"];
+                  break;
+                }
+              }
+
+              var obj = $(".followerchart");
+
+              var data = this.followerData;
+              var newData = [];
+
+              for (let i = 1; i < data.length; i++) {
+                newData.push({
+                  date: data[i][0],
+                  follower_count: data[i][1],
+                  follower_change: data[i][1] - data[i - 1][1],
+                });
+              }
+
+              pdata["datasets"]["data-stem"] = newData;
+              vegaEmbed("#livechart-follower", pdata).then(function (
+                result
+              ) {});
+            });
+          },
+          drawMonthlyMostUsedWordWordsCloud(dateOut) {
+            var obj = $(".monthlyWordCloud");
+            var pdata = this.info["most-used-wordcloud"];
+            try {
+              var data = JSON.parse($(obj).attr("data"));
+              pdata["data"][0]["values"] = data[dateOut];
+            } catch (error) {}
+            vegaEmbed("#livechart-monthlyWordCloud", pdata)
+              .then(function (result) {})
+              .catch(console.error);
+          },
+          
+          drawDailyTweetsChart() {
+            var obj = $(".tweetschart");
+            var pdata = this.info["tweets-graph"];
+            var data = JSON.parse($(obj).attr("data"));
+
+            pdata["data"]["values"] = data;
+
+            vegaEmbed("#livechart-tweets", pdata)
+              .then(function (result) {})
+              .catch(console.error);
+          },
+
+          drawMentionChart() {
+            var obj = $(".mentionchart");
+            var pdata = this.info["mention-graph"];
+            var data = JSON.parse($(obj).attr("data"));
+
+            pdata["data"][0]["values"] = data;
+
+            vegaEmbed("#livechart-mention", pdata)
+              .then(function (result) {})
+              .catch(console.error);
+          },
+         
+          drawHashtagChart() {
+            var obj = $(".hashtagchart");
+            var pdata = this.info["hashtag-graph"];
+            var data = JSON.parse($(obj).attr("data"));
+
+            pdata["data"][0]["values"] = data;
+
+            vegaEmbed("#livechart-hashtag", pdata)
+              .then(function (result) {})
+              .catch(console.error);
+          },
+          
           reloadTwitterWidgets() {
             if (typeof twttr !== "undefined") {
               twttr.widgets.load();
             } else {
-              // If the Twitter widget JavaScript hasn't finished loading yet, wait for it to finish before calling the load() method
               const twitterWidgetsJs =
                 document.getElementById("twitter-widgets-js");
               twitterWidgetsJs.addEventListener("load", () => {
@@ -236,37 +432,172 @@
               });
             }
           },
+
           openPoliticianProfile() {
-            window.open(this.politicanInfo.profile_url, "_blank");
+            window.open(
+              "https://twitter.com/" + this.politicanInfo.screen_name,
+              "_blank"
+            );
           },
+          
           setSelectedMetric(value) {
             this.selectedMetric = value;
           },
+          
           GetPoliticanNameFromURL: function () {
             var sPageURL = window.location.search.substring(1);
             var sURLVariables = sPageURL.split("=");
-            let PolName = sURLVariables[1];
+            let PolName = sURLVariables[1].toLowerCase();
             return PolName;
           },
 
           getJson: function () {
             let PolName = this.GetPoliticanNameFromURL();
 
-            console.log(PolName);
+            $.getJSON("graph-info.json", (def) => {
+              setLang(getCookie("pagelang", "tr"));
+              this.info = def;
+            });
+
             $.getJSON(
               "./" + PolName + ".json",
               function (json) {
-                this.politicanInfo = json.politicanInfo;
-                this.followerChangeChartData = json.followerChangeChartData;
-                this.tweets = json.tweets;
-                this.monthlyMostUsedWordsCloudData = json.monthlyMostUsedWords;
-              }.bind(this)
-            );
-            console.log("I am called.");
-            $.getJSON(
-              "./follower-change-graph.json",
-              function (json) {
-                this.followerChangeChartInfo = json;
+                setLang(getCookie("pagelang", "tr"));
+                this.politicanInfo = json["profile-info"];
+                this.usernet = json["networks"]["usernet"];
+                this.hashtagnet = json["networks"]["hashtagnet"];
+
+                let mention_data = json["tweet-info"]["top-mentions"]
+                  .slice(0, 25)
+                  .map((item) => {
+                    return {
+                      mention: item[0],
+                      amount: item[1],
+                    };
+                  });
+                this.mentionChartData = mention_data;
+
+                let hastag_data = json["tweet-info"]["top-hashtags"]
+                  .slice(0, 25)
+                  .map((item) => {
+                    return {
+                      hashtag: item[0],
+                      amount: item[1],
+                    };
+                  });
+                this.hashtagChartData = hastag_data;
+
+                this.tweets = json["tweet-info"]["tweets"];
+
+                let words = {};
+                let symbols = [",",".","!","?",";",":","…","#","'","’"];
+                let stopwords = ["tüm","olan","rt","bir","ile","ne","sen","ve","bu","için","de","da","her","en","daha","kadar","ki","ama","gibi","a","ya","i","2","mi","mu"];
+                let main_dict = {};
+                main_dict["All"] = [];
+
+                for (const id in this.tweets) {
+                  const tweet = this.tweets[id];
+                  if (tweet.isRt) {
+                    continue;
+                  }
+                  let txt = tweet["text"].toLowerCase();
+                  var parsedTimestamp = new Date(
+                    Date.parse(tweet["created_at"])
+                  );
+                  var utcTimestamp = Date.UTC(
+                    parsedTimestamp.getUTCFullYear(),
+                    parsedTimestamp.getUTCMonth(),
+                    parsedTimestamp.getUTCDate(),
+                    parsedTimestamp.getUTCHours(),
+                    parsedTimestamp.getUTCMinutes(),
+                    parsedTimestamp.getUTCSeconds()
+                  );
+                  var formattedString = new Date(utcTimestamp)
+                    .toISOString()
+                    .replace("T", " ")
+                    .replace(/\.\d+Z$/, "");
+                  let year_month = formattedString.slice(0, 7);
+
+                  for (let sy of symbols) {
+                    txt = txt.replace(sy, "");
+                  }
+                  let lst = txt.split(" ");
+                  let nwlst = [];
+                  for (let i of lst) {
+                    if (i.indexOf("http") == -1 && i.indexOf("@") == -1) {
+                      nwlst.push(i);
+                    }
+                  }
+                  for (let i of nwlst) {
+                    if (stopwords.indexOf(i) == -1 && i.length > 2) {
+                      if (!main_dict[year_month]) {
+                        main_dict[year_month] = [];
+                      }
+                      main_dict[year_month].push(i);
+                      main_dict["All"].push(i);
+                    }
+                  }
+                }
+
+                for (let year_month in main_dict) {
+                  words = {};
+                  for (let i of main_dict[year_month]) {
+                    words[i] = (words[i] || 0) + 1;
+                  }
+                  let words_sorted = Object.fromEntries(
+                    Object.entries(words)
+                      .sort((a, b) => b[1] - a[1])
+                      .slice(0, 35)
+                  );
+                  main_dict[year_month] = Object.entries(words_sorted).map(
+                    ([text, count]) => ({ text, count })
+                  );
+                }
+
+                this.monthlyMostUsedWordsCloudData = main_dict;
+
+                const convertedTweets = [];
+
+                for (const id in this.tweets) {
+                  const tweet = this.tweets[id];
+                  if (tweet.isRt) {
+                    continue;
+                  }
+                  var parsedTimestamp = new Date(Date.parse(tweet.created_at));
+                  var utcTimestamp = Date.UTC(
+                    parsedTimestamp.getUTCFullYear(),
+                    parsedTimestamp.getUTCMonth(),
+                    parsedTimestamp.getUTCDate(),
+                    parsedTimestamp.getUTCHours(),
+                    parsedTimestamp.getUTCMinutes(),
+                    parsedTimestamp.getUTCSeconds()
+                  );
+                  var formattedString = new Date(utcTimestamp)
+                    .toISOString()
+                    .replace("T", " ")
+                    .replace(/\.\d+Z$/, "");
+                  const convertedTweet = {
+                    tweet_created_at: formattedString,
+                    id: id,
+                    retweet_count: tweet.nretweet,
+                    favorite_count: tweet.nfav,
+                    rtfav_total_count: tweet.nretweet + tweet.nfav,
+                    retweet_count_log: Math.log10(tweet.nretweet + 1),
+                    favorite_count_log: Math.log10(tweet.nfav + 1),
+                    rtfav_total_count_log: Math.log10(
+                      tweet.nretweet + tweet.nfav + 1
+                    ),
+                    text: tweet.text,
+                    url:
+                      "https://twitter.com/" +
+                      this.politicanInfo.screen_name +
+                      "/status/" +
+                      id,
+                  };
+                  convertedTweets.push(convertedTweet);
+                }
+
+                this.tweets = convertedTweets;
               }.bind(this)
             );
           },
@@ -280,13 +611,12 @@
               const month = (this.selectedDate % 12) + 1;
               this.dateOutput = `${year}-${month.toString().padStart(2, "0")}`;
             }
-            drawMonthlyMostUsedWordWordsCloud(this.dateOutput);
+            this.drawMonthlyMostUsedWordWordsCloud(this.dateOutput);
             return this.dateOutput;
           },
 
           filteredData() {
             var temp = this.tweets;
-            console.log(temp);
             if (this.selectedMetric === "Retweets") {
               this.selectedMetricTr = "Retweets";
               temp = temp.sort(
@@ -334,6 +664,7 @@
       <div class="row my-5 justify-content-center">
         <div class="col-8">
           <div id="app">
+            <!-- Start Profile Banner Componenet -->
             <div class="container py-5 h-100">
               <div
                 class="row d-flex justify-content-center align-items-center h-100"
@@ -346,7 +677,7 @@
                     <div class="d-flex text-black">
                       <div class="flex-shrink-0">
                         <img
-                          :src="politicanInfo.profile_picture"
+                          :src="politicanInfo.image_url"
                           alt="Profile Image"
                           class="img-fluid"
                           style="
@@ -359,7 +690,7 @@
                       <div class="flex-grow-1 ms-3">
                         <h5 class="mb-1">{{politicanInfo.name}}</h5>
                         <p class="mb-2 pb-1" style="color: #2b2a2a">
-                          {{politicanInfo.bio}}
+                          {{politicanInfo.description}}
                         </p>
                         <div
                           class="d-flex justify-content-around rounded-3 p-2 mb-2"
@@ -370,41 +701,28 @@
                               <span tlang="tr">Takipçi Edilenler</span>
                               <span tlang="en">Following</span>
                             </p>
-                            <p class="mb-0">{{politicanInfo.following}}</p>
+                            <p class="mb-0">
+                              {{politicanInfo.stats[Object.keys(politicanInfo.stats)[0]].friends}}
+                            </p>
                           </div>
                           <div class="px-3">
                             <p class="small text-muted mb-1">
                               <span tlang="tr">Takipçiler</span>
                               <span tlang="en">Following</span>
                             </p>
-                            <p class="mb-0">{{politicanInfo.followers}}</p>
-                          </div>
-                          <div class="col-md-4">
-                            <img
-                              v-bind:src="'/img/party-' + politicanInfo.party.toLowerCase().replace('i̇','i') + '-logo.png'"
-                              onError="this.onerror=null;this.src='/img/noimage.png';"
-                              style="height: 50px"
-                              class="float-end"
-                              alt="Party Logo"
-                            />
+                            <p class="mb-0">
+                              {{politicanInfo.stats[Object.keys(politicanInfo.stats)[0]].followers}}
+                            </p>
                           </div>
                         </div>
                         <div class="d-flex pt-1">
                           <button
                             type="button"
                             @click="openPoliticianProfile"
-                            class="btn btn-outline-primary me-1 flex-grow-1"
-                            style="color: #1da1f2"
+                            class="btn btn-primary me-1 flex-grow-1"
                           >
                             <span tlang="tr">Twitter'a git</span>
                             <span tlang="en">Go to Twitter</span>
-                          </button>
-                          <button
-                            type="button"
-                            class="btn btn-primary flex-grow-1"
-                          >
-                            <span tlang="tr">Kıyasla</span>
-                            <span tlang="en">Compare with</span>
                           </button>
                         </div>
                       </div>
@@ -413,69 +731,307 @@
                 </div>
               </div>
             </div>
+            <!-- End Profile Banner Componenet -->
             <div class="row">
+              <!-- Start Tweet Componenet -->
               <div class="col-md-12 mb-4">
                 <div class="card h-100">
-                  <div class="card-body">
-                    <h5 class="card-title">
-                      <span tlang="tr">Günlük Tweet Etkileşimi</span>
-                      <span tlang="en">Daily Tweets Engagement</span>
-                    </h5>
-                    <div
-                      class="tweetschart"
-                      id="chart-tweets"
-                      v-bind:data="JSON.stringify(tweets)"
-                    ></div>
-                    <div id="livechart-tweets"></div>
+                  <div class="accordion accordion-flush" id="accordionTweet">
+                    <div class="accordion-item">
+                      <button
+                        class="accordion-button"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#flush-collapseOneTweet"
+                        aria-expanded="true"
+                        aria-controls="flush-collapseOneTweet"
+                      >
+                        <h5 class="card-title">
+                          <span tlang="tr">Günlük Tweet Etkileşimi</span>
+                          <span tlang="en">Daily Tweets Engagement</span>
+                        </h5>
+                      </button>
+
+                      <div
+                        id="flush-collapseOneTweet"
+                        class="accordion-collapse collapse show"
+                        aria-labelledby="flush-headingOne"
+                        data-bs-parent="#accordionTweet"
+                      >
+                        <div class="accordion-body">
+                          <div
+                            class="tweetschart"
+                            id="chart-tweets"
+                            v-bind:data="JSON.stringify(tweets)"
+                          ></div>
+                          <div id="livechart-tweets"></div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
+              <!-- End Tweet Componenet -->
+              <!-- Start Follower Change Componenet -->
               <div class="col-md-12 mb-4">
                 <div class="card h-100">
-                  <div class="card-body">
-                    <h5 class="card-title">
-                      <span tlang="en">Daily Follower Changes</span>
-                      <span tlang="tr">Günlük Takipçi Değişimi</span>
-                    </h5>
-                    <div
-                      class="followerchart"
-                      id="chart-follower"
-                      v-bind:data="JSON.stringify(followerChangeChartData)"
-                    ></div>
-                    <div id="livechart-follower"></div>
+                  <div class="accordion accordion-flush" id="accordionFollower">
+                    <div class="accordion-item">
+                      <button
+                        class="accordion-button collapsed"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#flush-collapseOneFollower"
+                        aria-expanded="false"
+                        aria-controls="flush-collapseOneFollower"
+                      >
+                        <h5 class="card-title">
+                          <span tlang="en">Daily Follower Changes</span>
+                          <span tlang="tr">Günlük Takipçi Değişimi</span>
+                        </h5>
+                      </button>
+
+                      <div
+                        id="flush-collapseOneFollower"
+                        class="accordion-collapse collapse"
+                        aria-labelledby="flush-headingOne"
+                        data-bs-parent="#Follower"
+                      >
+                        <div class="accordion-body">
+                          <div
+                            class="followerchart"
+                            id="chart-follower"
+                            v-bind:data="JSON.stringify(followerData)"
+                          ></div>
+                          <div id="livechart-follower"></div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
+              <!-- End Follower Change Componenet -->
+              <!-- Start Usernet Componenet -->
               <div class="col-md-12 mb-4">
                 <div class="card h-100">
-                  <div class="card-body">
-                    <h5 class="card-title">
-                      <span tlang="en">Most Used Words</span>
-                      <span tlang="tr">En Sık Kullanılan Kelimeler</span>
-                    </h5>
-                    <div
-                      class="monthlyWordCloud"
-                      id="monthlyWordCloud"
-                      v-bind:data="JSON.stringify(monthlyMostUsedWordsCloudData)"
-                    ></div>
-                    <div id="livechart-monthlyWordCloud"></div>
-                    <label for="dateRange" class="form-label"
-                      ><span tlang="en">Select a date:</span>
-                      <span tlang="tr">Tarih Seçin</span>
-                    </label>
-                    <input
-                      type="range"
-                      class="form-range"
-                      min="0"
-                      max="14"
-                      id="dateRange"
-                      v-model="selectedDate"
-                    />
-                    <div id="dateOutput">{{ formattedDate }}</div>
+                  <div class="accordion accordion-flush" id="accordionUsernet">
+                    <div class="accordion-item">
+                      <button
+                        class="accordion-button collapsed"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#flush-collapseOneUsernet"
+                        aria-expanded="false"
+                        aria-controls="flush-collapseOneUsernet"
+                        onclick="drawNetwork()"
+                      >
+                        <h5 class="card-title">
+                          <span tlang="tr">Usernet</span>
+                          <span tlang="en">Usernet</span>
+                        </h5>
+                      </button>
+
+                      <div
+                        id="flush-collapseOneUsernet"
+                        class="accordion-collapse collapse collapse"
+                        aria-labelledby="flush-headingOne"
+                        data-bs-parent="#accordionUsernet"
+                      >
+                        <div class="accordion-body">
+                          <div
+                            class="usernetchart"
+                            id="chart-usernet"
+                            v-bind:data="JSON.stringify(usernet)"
+                          >
+                            <div id="webgl">
+                              <div class="label"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
+              <!-- End Usernet Componenet -->
+              <!-- Start Hashtagnet Componenet -->
+              <div class="col-md-12 mb-4">
+                <div class="card h-100">
+                  <div
+                    class="accordion accordion-flush"
+                    id="accordionHashtagnet"
+                  >
+                    <div class="accordion-item">
+                      <button
+                        class="accordion-button collapsed"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#flush-collapseOneHashtagnet"
+                        aria-expanded="false"
+                        aria-controls="flush-collapseOneHashtagnet"
+                        onclick="drawNetworkHashtag()"
+                      >
+                        <h5 class="card-title">
+                          <span tlang="tr">Hashtagnet</span>
+                          <span tlang="en">Hashtagnet</span>
+                        </h5>
+                      </button>
+
+                      <div
+                        id="flush-collapseOneHashtagnet"
+                        class="accordion-collapse collapse collapse"
+                        aria-labelledby="flush-headingOne"
+                        data-bs-parent="#accordionHashtagnet"
+                      >
+                        <div class="accordion-body">
+                          <div
+                            class="hashtagnetchart"
+                            id="chart-hashtagnet"
+                            v-bind:data="JSON.stringify(hashtagnet)"
+                          >
+                            <div id="morfi">
+                              <div class="label"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- End Hashtagnet Componenet -->
+              <!-- Start Mention Componenet -->
+              <div class="col-md-12 mb-4">
+                <div class="card h-100">
+                  <div class="accordion accordion-flush" id="accordionMention">
+                    <div class="accordion-item">
+                      <button
+                        class="accordion-button collapsed"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#flush-collapseOneMention"
+                        aria-expanded="false"
+                        aria-controls="flush-collapseOneMention"
+                      >
+                        <h5 class="card-title">
+                          <span tlang="en">Top Mentions</span>
+                          <span tlang="tr">Bahsetmeler</span>
+                        </h5>
+                      </button>
+
+                      <div
+                        id="flush-collapseOneMention"
+                        class="accordion-collapse collapse"
+                        aria-labelledby="flush-headingOne"
+                        data-bs-parent="#Mention"
+                      >
+                        <div class="accordion-body">
+                          <div
+                            class="mentionchart"
+                            id="chart-mention"
+                            v-bind:data="JSON.stringify(mentionChartData)"
+                          ></div>
+                          <div id="livechart-mention"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- End Mention Componenet -->
+              <!-- Start Hashtag Componenet -->
+              <div class="col-md-12 mb-4">
+                <div class="card h-100">
+                  <div class="accordion accordion-flush" id="accordionHashtag">
+                    <div class="accordion-item">
+                      <button
+                        class="accordion-button collapsed"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#flush-collapseOneHashtag"
+                        aria-expanded="false"
+                        aria-controls="flush-collapseOneHashtag"
+                      >
+                        <h5 class="card-title">
+                          <span tlang="en">Top Hashtags</span>
+                          <span tlang="tr">Hashtagler</span>
+                        </h5>
+                      </button>
+
+                      <div
+                        id="flush-collapseOneHashtag"
+                        class="accordion-collapse collapse"
+                        aria-labelledby="flush-headingOne"
+                        data-bs-parent="#Hashtag"
+                      >
+                        <div class="accordion-body">
+                          <div
+                            class="hashtagchart"
+                            id="chart-hashtag"
+                            v-bind:data="JSON.stringify(hashtagChartData)"
+                          ></div>
+                          <div id="livechart-hashtag"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- End Hashtag Componenet -->
+              <!-- Start WorldCloud Componenet -->
+              <div class="col-md-12 mb-4">
+                <div class="card h-100">
+                  <div class="accordion accordion-flush" id="accordionWords">
+                    <div class="accordion-item">
+                      <button
+                        class="accordion-button collapsed"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#flush-collapseOneWords"
+                        aria-expanded="false"
+                        aria-controls="flush-collapseOneWords"
+                      >
+                        <h5 class="card-title">
+                          <span tlang="en">Most Used Words</span>
+                          <span tlang="tr">En Sık Kullanılan Kelimeler</span>
+                        </h5>
+                      </button>
+
+                      <div
+                        id="flush-collapseOneWords"
+                        class="accordion-collapse collapse"
+                        aria-labelledby="flush-headingOne"
+                        data-bs-parent="#Words"
+                      >
+                        <div class="accordion-body">
+                          <div
+                            class="monthlyWordCloud"
+                            id="monthlyWordCloud"
+                            v-bind:data="JSON.stringify(monthlyMostUsedWordsCloudData)"
+                          ></div>
+                          <div id="livechart-monthlyWordCloud"></div>
+                          <label for="dateRange" class="form-label"
+                            ><span tlang="en">Select a date:</span>
+                            <span tlang="tr">Tarih Seçin</span>
+                          </label>
+                          <input
+                            type="range"
+                            class="form-range"
+                            min="0"
+                            max="14"
+                            id="dateRange"
+                            v-model="selectedDate"
+                          />
+                          <div id="dateOutput">{{ formattedDate }}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- End WorldCloud Componenet -->
             </div>
+            <!-- Start Tweet List Input Componenet -->
             <div
               id="input2"
               style="
@@ -534,7 +1090,8 @@
                 </div>
               </div>
             </div>
-
+            <!-- End Tweet List Input Componenet -->
+            <!-- Start Tweet List Componenet -->
             <div class="card-group">
               <div class="row row-cols-1 row-cols-md-2 g-4">
                 <div
@@ -544,31 +1101,23 @@
                 >
                   <div class="card h-100 border-0">
                     <div class="card-body">
-                      <center>
-                        <blockquote class="twitter-tweet">
-                          <p lang="tr" dir="ltr">{{tweet.text}}</p>
-                          &mdash; @{{(tweet.screen_name)}}
-                          <a :href="tweet.url" target="_blank"
-                            >{{ tweet.tweet_created_at }}</a
-                          >
-                        </blockquote>
-                      </center>
-                      <script
-                        async
-                        src="https://platform.twitter.com/widgets.js"
-                        charset="utf-8"
-                        id="twitter-widgets-js"
-                      ></script>
+                      <blockquote class="twitter-tweet">
+                        <p lang="tr" dir="ltr">{{tweet.text}}</p>
+                        &mdash; @{{(politicanInfo.screen_name)}}
+                        <a :href="tweet.url" target="_blank"
+                          >{{ tweet.tweet_created_at }}</a
+                        >
+                      </blockquote>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
+            <!-- End Tweet List Input Componenet -->
           </div>
         </div>
       </div>
     </div>
-
     <div id="footer-container"></div>
   </body>
 </html>

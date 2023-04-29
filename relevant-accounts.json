@@ -1,0 +1,48 @@
+{
+    "candidates": [
+        ["68034431", "rterdogan"],
+        ["154140901", "kilicdarogluk"],
+        ["182317200", "vekilince"],
+        ["324325583", "erbakanfatih"],
+        ["177884455", "drsinanogan"],
+        ["345231050", "dogu_perincek"]
+    ],
+
+    "leaders": [
+        ["422861505","ekrem_imamoglu"],
+        ["246181702","mansuryavas06"],
+        ["590346965","meral_aksener"],
+        ["2924498422","t_karamollaoglu"],
+        ["1242776858325909504","dpgultekinuysal"],
+        ["1907454812","alibabacan"],
+        ["181567076","ahmet_davutoglu"],
+        ["214017108","dbdevletbahceli"],
+        ["1068667676","zyapicioglu"],
+        ["433271238","mustafa_destici"],
+        ["255957302","erkbas"],
+        ["214930248","umitozdag"],
+        ["367377070","mithatsancarr"],
+        ["385576286","pervinbuldan"],
+        ["1091895260","ercmentakdeniz"]
+    ],
+
+    "parties": [
+        ["1628824092","akparti"],
+        ["161355169","mhp_bilgi"],
+        ["1065558124499742720","rprefahpartisi"],
+        ["947348684","hurdavapartisi"],
+        ["255515879","herkesicinchp"],
+        ["902503200728731649","iyiparti"],
+        ["19942168","saadetpartisi"],
+        ["760073225934168064","_demokratparti"],
+        ["1237056131933057024","devapartisi"],
+        ["1203308471371862019","gelecekpartitr"],
+        ["2740534176","tipgenelmerkez"],
+        ["432608988","bbpgenelmerkez"],
+        ["1113930630096719872","zaferpartisi"],
+        ["1362780632909303813","memleketimparti"],
+        ["878455824","vatan_partisi"],
+        ["1670366851","hdpgenelmerkezi"],
+        ["171889516","emekpartisi"]
+    ]
+}

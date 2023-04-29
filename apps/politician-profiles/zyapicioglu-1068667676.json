@@ -1,0 +1,21 @@
+{
+    "last-updated": "2023-04-16",
+    "profile-info": null,
+    "tweet-info": {
+        "tweets": {},
+        "top-mentions": [],
+        "top-hashtags": [],
+        "wordcloud": {}
+    },
+    "follower-info": {},
+    "networks": {
+        "usernet": {
+            "nodes": [],
+            "edges": []
+        },
+        "hashtagnet": {
+            "nodes": [],
+            "edges": []
+        }
+    }
+}

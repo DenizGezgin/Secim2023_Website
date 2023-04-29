@@ -1,0 +1,561 @@
+{
+  "follower-change-graph": {
+    "config": {
+      "view": { "continuousWidth": 400, "continuousHeight": 300 },
+      "axis": { "grid": false }
+    },
+    "layer": [
+      {
+        "data": { "name": "data-stem" },
+        "mark": { "type": "bar", "color": "#CCCCCC", "size": 2 },
+        "encoding": {
+          "x": { "field": "date", "type": "temporal" },
+          "y": { "field": "follower_change", "type": "quantitative" }
+        },
+        "selection": {
+          "selector006": {
+            "type": "interval",
+            "bind": "scales",
+            "encodings": ["x"]
+          }
+        }
+      },
+      {
+        "data": { "name": "data-base" },
+        "mark": { "type": "rule", "color": "#EA0000" },
+        "encoding": {
+          "y": { "field": "follower_change", "type": "quantitative" }
+        }
+      },
+      {
+        "data": { "name": "data-stem" },
+        "mark": { "type": "circle", "color": "#262626" },
+        "encoding": {
+          "x": {
+            "axis": { "title": "Tarih" },
+            "field": "date",
+            "type": "temporal"
+          },
+          "y": {
+            "axis": { "title": "Günlük değişim" },
+            "field": "follower_change",
+            "type": "quantitative"
+          }
+        },
+        "title": "Günlük takipçi değişimi"
+      },
+      {
+        "data": { "name": "data-stem" },
+        "mark": "point",
+        "encoding": {
+          "opacity": { "value": 0 },
+          "x": { "field": "date", "type": "temporal" }
+        },
+        "selection": {
+          "selector005": {
+            "type": "single",
+            "nearest": true,
+            "on": "mouseover",
+            "fields": ["date"],
+            "empty": "none"
+          }
+        }
+      },
+      {
+        "data": { "name": "data-stem" },
+        "mark": { "type": "point", "color": "black", "size": 40 },
+        "encoding": {
+          "opacity": {
+            "condition": { "value": 1, "selection": "selector005" },
+            "value": 0
+          },
+          "x": {
+            "axis": { "title": "Tarih" },
+            "field": "date",
+            "type": "temporal"
+          },
+          "y": {
+            "axis": { "title": "Günlük değişim" },
+            "field": "follower_change",
+            "type": "quantitative"
+          }
+        },
+        "title": "Günlük takipçi değişimi"
+      },
+      {
+        "data": { "name": "data-stem" },
+        "mark": { "type": "rule", "color": "gray", "opacity": 0.3 },
+        "encoding": { "x": { "field": "date", "type": "temporal" } },
+        "transform": [{ "filter": { "selection": "selector005" } }]
+      },
+      {
+        "data": { "name": "data-stem" },
+        "mark": { "type": "rule", "color": "gray", "opacity": 0.3 },
+        "encoding": {
+          "y": { "field": "follower_change", "type": "quantitative" }
+        },
+        "transform": [{ "filter": { "selection": "selector005" } }]
+      },
+      {
+        "data": { "name": "data-stem" },
+        "mark": { "type": "text", "align": "left", "dx": 5, "dy": -10 },
+        "encoding": {
+          "text": {
+            "condition": {
+              "field": "follower_change",
+              "type": "quantitative",
+              "selection": "selector005"
+            },
+            "value": " "
+          },
+          "x": {
+            "axis": { "title": "Tarih" },
+            "field": "date",
+            "type": "temporal"
+          },
+          "y": {
+            "axis": { "title": "Günlük değişim" },
+            "field": "follower_change",
+            "type": "quantitative"
+          }
+        },
+        "title": "Günlük takipçi değişimi"
+      }
+    ],
+    "height": 350,
+    "width": 800,
+    "autosize": { "type": "fit" },
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.5.0.json",
+    "datasets": {
+      "data-stem": [],
+      "data-base": [{ "follower_change": 0 }]
+    }
+  },
+  "hashtag-graph": {
+    "$schema": "https://vega.github.io/schema/vega/v5.json",
+    "usermeta": {
+      "embedOptions": {
+        "loader": { "target": "blank" }
+      }
+    },
+    "width": 800,
+    "height": 350,
+    "padding": { "left": 5, "right": 5, "top": 20, "bottom": 0 },
+    "autosize": "none",
+
+    "signals": [
+      { "name": "cx", "update": "width / 2" },
+      { "name": "cy", "update": "height / 2" },
+      {
+        "name": "gravityX",
+        "value": 0.1
+      },
+      {
+        "name": "gravityY",
+        "value": 0.5
+      }
+    ],
+    "data": [
+      {
+        "name": "table",
+        "values": [{ "hashtag": "herkesicinCHP", "amount": 167 }],
+        "transform": [
+          {
+            "type": "formula",
+            "as": "url",
+            "expr": "'https://twitter.com/search?q=%23' + datum.hashtag"
+          }
+        ]
+      }
+    ],
+    "scales": [
+      {
+        "name": "size",
+        "domain": { "data": "table", "field": "amount" },
+        "range": [800, 1000000]
+      },
+      {
+        "name": "color",
+        "type": "ordinal",
+        "domain": { "data": "table", "field": "hashtag" },
+        "range": ["#CAD2C5", "#84A98C", "#639286", "#496B6F"]
+      },
+      {
+        "name": "labelSize",
+        "type": "linear",
+        "domain": { "data": "table", "field": "amount" },
+        "range": [6, 20]
+      }
+    ],
+    "marks": [
+      {
+        "name": "nodes",
+        "type": "symbol",
+        "from": { "data": "table" },
+        "encode": {
+          "enter": {
+            "fill": { "scale": "color", "field": "hashtag" },
+            "xfocus": { "signal": "cx" },
+            "yfocus": { "signal": "cy" }
+          },
+          "update": {
+            "size": { "signal": "2 * datum.amount/100", "scale": "size" },
+            "stroke": { "value": "white" },
+            "strokeWidth": { "value": 10 },
+            "tooltip": { "signal": "datum" }
+          }
+        },
+        "transform": [
+          {
+            "type": "force",
+            "iterations": 100,
+            "static": false,
+            "forces": [
+              {
+                "force": "collide",
+                "iterations": 2,
+                "radius": { "expr": "sqrt(datum.size) / 2" }
+              },
+              {
+                "force": "center",
+                "x": { "signal": "cx" },
+                "y": { "signal": "cy" }
+              },
+              {
+                "force": "x",
+                "x": "xfocus",
+                "strength": { "signal": "gravityX" }
+              },
+              {
+                "force": "y",
+                "y": "yfocus",
+                "strength": { "signal": "gravityY" }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "from": { "data": "nodes" },
+        "encode": {
+          "enter": {
+            "align": { "value": "center" },
+            "baseline": { "value": "middle" },
+            "fontSize": { "scale": "labelSize", "field": "datum.amount" },
+            "fontWeight": { "value": "bold" },
+            "fill": { "value": "black" },
+            "text": { "field": "datum.hashtag" }
+          },
+          "update": {
+            "x": { "field": "x" },
+            "y": { "field": "y" },
+            "fillOpacity": { "value": 1 },
+            "cursor": { "value": "pointer" },
+            "href": { "field": "datum.url", "type": "nominal" }
+          },
+          "hover": {
+            "fillOpacity": { "value": 0.5 }
+          }
+        }
+      }
+    ]
+  },
+  "mention-graph": {
+    "$schema": "https://vega.github.io/schema/vega/v5.json",
+    "usermeta": {
+      "embedOptions": {
+        "loader": { "target": "blank" }
+      }
+    },
+    "width": 800,
+    "height": 350,
+    "padding": { "left": 5, "right": 5, "top": 20, "bottom": 0 },
+
+    "signals": [
+      { "name": "cx", "update": "width / 2" },
+      { "name": "cy", "update": "height / 2" },
+      {
+        "name": "gravityX",
+        "value": 0.3
+      },
+      {
+        "name": "gravityY",
+        "value": 1.0
+      }
+    ],
+    "data": [
+      {
+        "name": "table",
+        "values": [{ "mention": "herkesicinCHP", "amount": 167 }],
+        "transform": [
+          {
+            "type": "formula",
+            "as": "url",
+            "expr": "'https://twitter.com/' + datum.mention"
+          }
+        ]
+      }
+    ],
+    "scales": [
+      {
+        "name": "size",
+        "domain": { "data": "table", "field": "amount" },
+        "range": [800, 4000000]
+      },
+      {
+        "name": "color",
+        "type": "ordinal",
+        "domain": { "data": "table", "field": "mention" },
+        "range": ["#D8E0B4", "#A8BCB4", "#90AAB5", "#5F85B5"]
+      },
+      {
+        "name": "labelSize",
+        "type": "linear",
+        "domain": { "data": "table", "field": "amount" },
+        "range": [8, 30]
+      }
+    ],
+    "marks": [
+      {
+        "name": "nodes",
+        "type": "symbol",
+        "from": { "data": "table" },
+        "encode": {
+          "enter": {
+            "fill": { "scale": "color", "field": "mention" },
+            "xfocus": { "signal": "cx" },
+            "yfocus": { "signal": "cy" }
+          },
+          "update": {
+            "size": { "signal": "2 * datum.amount/100", "scale": "size" },
+            "stroke": { "value": "white" },
+            "strokeWidth": { "value": 10 },
+            "tooltip": { "signal": "datum" }
+          }
+        },
+        "transform": [
+          {
+            "type": "force",
+            "iterations": 100,
+            "static": false,
+            "forces": [
+              {
+                "force": "collide",
+                "iterations": 2,
+                "radius": { "expr": "sqrt(datum.size) / 2" }
+              },
+              {
+                "force": "center",
+                "x": { "signal": "cx" },
+                "y": { "signal": "cy" }
+              },
+              {
+                "force": "x",
+                "x": "xfocus",
+                "strength": { "signal": "gravityX" }
+              },
+              {
+                "force": "y",
+                "y": "yfocus",
+                "strength": { "signal": "gravityY" }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "from": { "data": "nodes" },
+        "encode": {
+          "enter": {
+            "align": { "value": "center" },
+            "baseline": { "value": "middle" },
+            "fontSize": { "scale": "labelSize", "field": "datum.amount" },
+            "fontWeight": { "value": "bold" },
+            "fill": { "value": "black" },
+            "text": { "field": "datum.mention" }
+          },
+          "update": {
+            "x": { "field": "x" },
+            "y": { "field": "y" },
+            "fillOpacity": { "value": 1 },
+            "cursor": { "value": "pointer" },
+            "href": { "field": "datum.url", "type": "url", "target": "_blank" }
+          },
+          "hover": {
+            "fillOpacity": { "value": 0.5 }
+          }
+        }
+      }
+    ]
+  },
+  "most-used-wordcloud": {
+    "$schema": "https://vega.github.io/schema/vega/v5.json",
+    "description": "A word cloud visualization depicting Vega research paper abstracts.",
+    "width": 800,
+    "height": 400,
+    "padding": 0,
+
+    "signals": [
+      {
+        "name": "tooltip",
+        "value": {},
+        "on": [{ "events": "text:mouseover", "update": "datum" }]
+      }
+    ],
+
+    "data": [
+      {
+        "name": "table",
+        "values": [
+          { "text": "missing", "count": "100" },
+          { "text": "text", "count": "1" },
+          { "text": "data", "count": "12" },
+          { "text": "error", "count": "20" }
+        ]
+      }
+    ],
+
+    "scales": [
+      {
+        "name": "color",
+        "type": "ordinal",
+        "domain": { "data": "table", "field": "text" },
+        "range": [
+          "#85bda6",
+          "#466362",
+          "#eb5e28",
+          "#628395",
+          "#684a52",
+          "#857885"
+        ]
+      }
+    ],
+
+    "marks": [
+      {
+        "type": "text",
+        "from": { "data": "table" },
+        "encode": {
+          "enter": {
+            "text": { "field": "text" },
+            "align": { "value": "center" },
+            "baseline": { "value": "alphabetic" },
+            "fill": { "scale": "color", "field": "text" }
+          },
+          "update": {
+            "fillOpacity": { "value": 1 },
+            "tooltip": { "signal": "{'Count': datum.count}" }
+          },
+          "hover": {
+            "fillOpacity": { "value": 0.5 }
+          }
+        },
+        "transform": [
+          {
+            "type": "wordcloud",
+            "size": [800, 400],
+            "text": { "field": "text" },
+            "font": "courier",
+            "fontSize": { "field": "datum.count" },
+            "fontSizeRange": [32, 60],
+            "padding": 2
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "encode": {
+          "enter": {
+            "align": { "value": "left" },
+            "fill": { "value": "black" },
+            "fillOpacity": { "value": 1 }
+          },
+          "update": {
+            "text": { "signal": "tooltip.Count" },
+            "x": { "signal": "tooltip.x + 10" },
+            "y": { "signal": "tooltip.y + 10" }
+          }
+        }
+      }
+    ]
+  },
+  "tweets-graph": {
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "usermeta": {
+      "embedOptions": {
+        "loader": { "target": "blank" }
+      }
+    },
+    "data": {
+      "values": []
+    },
+    "config": {
+      "view": { "continuousWidth": 400, "continuousHeight": 300 },
+      "axis": { "grid": true }
+    },
+    "params": [
+      {
+        "name": "grid",
+        "select": "interval",
+        "bind": "scales"
+      }
+    ],
+    "height": 350,
+    "width": 800,
+    "autosize": { "type": "fit" },
+
+    "transform": [
+      {
+        "fold": [
+          "retweet_count_log",
+          "favorite_count_log",
+          "rtfav_total_count_log"
+        ],
+        "as": ["type", "value"]
+      },
+      { "filter": "datum.type != 'favorite_count_log'" },
+      {
+        "calculate": "substring(datum.text, 0, 75) + '...'",
+        "as": "text_short"
+      }
+    ],
+
+    "layer": [
+      {
+        "mark": { "type": "circle", "filled": true, "size": 15 },
+        "encoding": {
+          "x": {
+            "field": "tweet_created_at",
+            "timeUnit": "yearmonthdatehoursminutes",
+            "scale": { "type": "utc" },
+            "axis": { "labelAngle": 15 },
+            "type": "temporal",
+            "title": "Date",
+            "sort": "ascending"
+          },
+          "y": {
+            "field": "value",
+            "type": "quantitative",
+            "title": "Total engagement"
+          },
+          "color": {
+            "field": "type",
+            "type": "nominal",
+            "title": "",
+            "scale": {
+              "domain": ["retweet_count_log", "rtfav_total_count_log"],
+              "range": ["green", "red"]
+            },
+            "legend": {
+              "labelExpr": "{'retweet_count_log': 'Retweet', 'rtfav_total_count_log': 'Fav+RT'}[datum.label]"
+            }
+          },
+          "tooltip": { "field": "text_short", "type": "nominal" },
+          "href": { "field": "url", "type": "nominal" }
+        }
+      }
+    ]
+  }
+}
