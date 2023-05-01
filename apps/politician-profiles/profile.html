@@ -528,12 +528,25 @@
                   }
                   
                   for (const age in ageData) {
-                    ageTransformedData.push({
-                      date,
-                      age,
-                      count: ageData[age]
-                    });
+                  let order;
+                  console.log(age)
+                  if (age == "<=18") {
+                    order = "18 ve altı";
+                  } else if (age == "19-29") {
+                    order = "19-29";
+                  } else if (age == "30-39") {
+                    order = "30-39";
+                  } else {
+                    order = "40 ve üstü";
                   }
+                  
+                  ageTransformedData.push({
+                    date,
+                    age,
+                    order,
+                    count: ageData[age]
+                  });
+                }
                   
                   for (const org in orgData) {
                     orgTransformedData.push({

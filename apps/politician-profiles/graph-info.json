@@ -93,7 +93,7 @@
       "type": "temporal",
       "title": "Tarih"},
       "color": {
-        "field": "age",
+        "field": "order",
         "scale": {"range": ["#cad2c5ff", "#84a98cff", "#52796fff", "#354f52ff"]},
         "title": "Yaş Dağılımı"
       }
