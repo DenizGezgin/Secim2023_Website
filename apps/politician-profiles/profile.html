@@ -317,6 +317,7 @@
             usernet: {},
             hashtagnet: {},
             selectedMetric: "All",
+            searchText: '',
             genderPlot: {},
             agePlot: {},
             orgPlot: {},
@@ -729,6 +730,11 @@
                 (a, b) =>
                   parseInt(b.rtfav_total_count) - parseInt(a.rtfav_total_count)
               );
+            }
+            // Apply filtering based on search text
+            if (this.searchText) {
+              const searchQuery = this.searchText.toLowerCase();
+              temp = temp.filter(tweet => tweet.text.toLowerCase().includes(searchQuery));
             }
             return temp.slice(0, 6);
           },
@@ -1244,88 +1250,62 @@
               <!-- End WorldCloud Componenet -->
             </div>
             <!-- Start Tweet List Input Componenet -->
-            <div
-              id="input2"
-              style="
-                display: flex;
-                align-items: center;
-                margin-left: 250px;
-                margin-bottom: 20px;
-              "
-            >
-              <div style="margin-right: 20px">
-                <h2 style="margin-bottom: 0">
-                  <span tlang="en">Top Engageded</span>
-                  <span tlang="tr">En Yüksek Etkileşim</span>
-                </h2>
-              </div>
-              <div class="select-container">
-                <div class="dropdown select-wrapper">
-                  <button
-                    class="btn btn-secondary dropdown-toggle form-select custom-select"
-                    type="button"
-                    id="selectedMetric"
-                    data-bs-toggle="dropdown"
-                    aria-haspopup="true"
-                    aria-expanded="false"
-                    v-bind:class="{ 'is-invalid': selectedMetric === '' }"
-                  >
-                    <span tlang="en">{{selectedMetric}}</span>
-                    <span tlang="tr">{{selectedMetricTr}}</span>
-                  </button>
-                  <div class="dropdown-menu" aria-labelledby="selectedMetric">
-                    <a
-                      class="dropdown-item"
-                      href="#"
-                      @click.prevent="setSelectedMetric('Retweets')"
-                    >
-                      <span tlang="en">Retweets</span>
-                      <span tlang="tr">Retweetler</span>
-                    </a>
-                    <a
-                      class="dropdown-item"
-                      href="#"
-                      @click.prevent="setSelectedMetric('Favorites')"
-                    >
-                      <span tlang="en">Favorites</span>
-                      <span tlang="tr">Favoriler</span>
-                    </a>
-                    <a
-                      class="dropdown-item"
-                      href="#"
-                      @click.prevent="setSelectedMetric('All')"
-                    >
-                      <span tlang="en">All</span>
-                      <span tlang="tr">Hepsi</span>
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <!-- End Tweet List Input Componenet -->
-            <!-- Start Tweet List Componenet -->
-            <div class="card-group">
-              <div class="row row-cols-1 row-cols-md-2 g-4">
-                <div
-                  v-for="(tweet, index) in filteredData"
-                  :key="tweet.id"
-                  class="col"
-                >
-                  <div class="card h-100 border-0">
-                    <div class="card-body">
-                      <blockquote class="twitter-tweet">
-                        <p lang="tr" dir="ltr">{{tweet.text}}</p>
-                        &mdash; @{{(politicanInfo.screen_name)}}
-                        <a :href="tweet.url" target="_blank"
-                          >{{ tweet.tweet_created_at }}</a
-                        >
-                      </blockquote>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <!-- End Tweet List Input Componenet -->
+<div id="input2" style="display: flex; align-items: center; margin-left: 250px; margin-bottom: 20px;">
+  <div style="margin-right: 20px;">
+    <h2 style="margin-bottom: 0;">
+      <span tlang="en">Top Engaged</span>
+      <span tlang="tr">En Yüksek Etkileşim</span>
+    </h2>
+  </div>
+  <div class="select-container">
+    <div class="dropdown select-wrapper">
+      <button class="btn btn-secondary dropdown-toggle form-select custom-select" type="button" id="selectedMetric"
+        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-bind:class="{ 'is-invalid': selectedMetric === '' }">
+        <span tlang="en">{{selectedMetric}}</span>
+        <span tlang="tr">{{selectedMetricTr}}</span>
+      </button>
+      <div class="dropdown-menu" aria-labelledby="selectedMetric">
+        <a class="dropdown-item" href="#" @click.prevent="setSelectedMetric('Retweets')">
+          <span tlang="en">Retweets</span>
+          <span tlang="tr">Retweetler</span>
+        </a>
+        <a class="dropdown-item" href="#" @click.prevent="setSelectedMetric('Favorites')">
+          <span tlang="en">Favorites</span>
+          <span tlang="tr">Favoriler</span>
+        </a>
+        <a class="dropdown-item" href="#" @click.prevent="setSelectedMetric('All')">
+          <span tlang="en">All</span>
+          <span tlang="tr">Hepsi</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add the search box here -->
+<div id="searchBox" style="margin-bottom: 20px;">
+  <input type="text" v-model="searchText" class="form-control" placeholder="Search tweets...">
+</div>
+
+<!-- End Tweet List Input Componenet -->
+
+<!-- Start Tweet List Componenet -->
+<div class="card-group">
+  <div class="row row-cols-1 row-cols-md-2 g-4">
+    <div v-for="(tweet, index) in filteredData" :key="tweet.id" class="col">
+      <div class="card h-100 border-0">
+        <div class="card-body">
+          <blockquote class="twitter-tweet">
+            <p lang="tr" dir="ltr">{{tweet.text}}</p>
+            &mdash; @{{(politicanInfo.screen_name)}}
+            <a :href="tweet.url" target="_blank">{{ tweet.tweet_created_at }}</a>
+          </blockquote>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- End Tweet List Input Componenet -->
           </div>
         </div>
       </div>
